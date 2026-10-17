@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CyberHub & Studio Tycoon Portal</title>
+
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-XXXXXXXXXX');
+    </script>
+
+    <!-- FontAwesome та Google Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        youtube: '#ff0000',
+                        ytbg: '#0f0f0f',
+                        ytcard: '#212121',
+                        ytborder: '#3f3f3f'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body id="appBody" class="bg-[#07090e] text-white font-['Montserrat'] min-h-screen flex flex-col select-none">
+
+    <!-- Верхня панель управління порталу -->
+    <header class="flex items-center justify-between px-6 py-3 bg-[#121824] border-b-2 border-[#1f2937] sticky top-0 z-50">
+        <div class="flex items-center gap-3">
+            <i class="fa-solid fa-cubes text-cyan-400 text-2xl"></i>
+            <span class="font-black text-lg tracking-wider text-white">CYBER<span class="text-cyan-400">HUB</span></span>
+        </div>
+
+        <!-- Вкладки сайтів та туторіали (?) -->
+        <div class="flex items-center gap-3">
+            <div class="flex items-center bg-[#07090e] p-1 rounded-xl border border-[#1f2937]">
+                <button id="btn-tab-brawl" class="px-4 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2 bg-[#00f0ff] text-black shadow-[0_0_10px_rgba(0,240,255,0.4)]" onclick="switchPortalTab('brawl')">
+                    <i class="fa-solid fa-gamepad"></i> Brawl Store 2.0
+                </button>
+                <button class="w-6 h-6 ml-2 rounded-full bg-[#1f2937] hover:bg-[#00f0ff] text-[#00f0ff] hover:text-black font-black text-xs flex items-center justify-center transition" onclick="openTutorial('brawl')" title="Як автор створював Brawl Store 2.0">?</button>
+            </div>
+
+            <div class="flex items-center bg-[#07090e] p-1 rounded-xl border border-[#1f2937]">
+                <button id="btn-tab-yt" class="px-4 py-2 text-xs font-bold rounded-lg transition flex items-center gap-2 text-gray-400 hover:text-white" onclick="switchPortalTab('yt')">
+                    <i class="fa-brands fa-youtube text-red-500"></i> YouTube Studio Tycoon
+                </button>
+                <button class="w-6 h-6 ml-2 rounded-full bg-[#1f2937] hover:bg-[#00f0ff] text-[#00f0ff] hover:text-black font-black text-xs flex items-center justify-center transition" onclick="openTutorial('yt')" title="Як автор створював YouTube Studio Tycoon">?</button>
+            </div>
+        </div>
+
+        <!-- Кнопки Windows (Скинути, Згорнути, Закрити) -->
+        <div class="flex items-center gap-2">
+            <button onclick="resetCurrentProgress()" class="bg-gray-700 hover:bg-amber-600 text-amber-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5" title="Скинути прогрес">
+                <i class="fa-solid fa-rotate-left"></i> Скинути
+            </button>
+            <button onclick="toggleMinimize()" class="bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1.5 rounded-lg text-xs font-bold transition" title="Згорнути">
+                <i class="fa-solid fa-minus"></i>
+            </button>
+            <button onclick="closeCurrentSite()" class="bg-gray-700 hover:bg-red-600 text-red-300 hover:text-white px-3 py-1.5 rounded-lg text-xs font-bold transition" title="Закрити">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Панель згорнутого додатку -->
+    <div id="minimizedBar" class="hidden fixed bottom-4 right-4 bg-[#121824] border-2 border-cyan-400 rounded-xl p-3 flex items-center gap-4 z-50 shadow-2xl">
+        <span id="minimizedLabel" class="text-xs font-bold text-cyan-400 flex items-center gap-2">
+            <i class="fa-solid fa-window-restore"></i> Додаток згорнуто
+        </span>
+        <button onclick="toggleMinimize()" class="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs px-3 py-1.5 rounded-lg transition cursor-pointer">
+            Розгорнути
+        </button>
+    </div>
+
+    <!-- Модальне вікно туторіалу автора -->
+    <div id="tutorialModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div class="bg-[#121824] border-2 border-[#1f2937] w-full max-w-2xl rounded-2xl p-6 relative shadow-2xl text-left">
+            <button onclick="closeTutorial()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-xl cursor-pointer">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <h3 id="tutTitle" class="text-xl font-bold text-cyan-400 mb-3 flex items-center gap-2"></h3>
+            <div id="tutContent" class="text-sm text-gray-300 space-y-3 max-h-[60vh] overflow-y-auto pr-2"></div>
+            <div class="mt-5 text-right">
+                <button onclick="closeTutorial()" class="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs py-2 px-5 rounded-xl cursor-pointer transition">Зрозуміло!</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Заглушка, якщо додаток закрито -->
+    <div id="closedStateView" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div class="text-6xl text-gray-600 mb-4"><i class="fa-solid fa-power-off"></i></div>
+        <h2 class="text-2xl font-bold mb-2">Додаток закрито</h2>
+        <p class="text-gray-400 text-sm mb-6">Ви закрили поточний екран. Оберіть потрібний сайт зверху, щоб продовжити роботу.</p>
+        <div class="flex gap-4">
+            <button onclick="openSite('brawl')" class="bg-cyan-500 text-black font-bold py-2 px-4 rounded-xl cursor-pointer">Відкрити Brawl Store 2.0</button>
+            <button onclick="openSite('yt')" class="bg-red-600 text-white font-bold py-2 px-4 rounded-xl cursor-pointer">Відкрити YouTube Tycoon</button>
+        </div>
+    </div>
+
+    <!-- КОНТЕЙНЕР ІГОР -->
+    <div id="mainPortalContent" class="flex-1 flex flex-col">
+
+        <!-- ==================== САЙТ 1: BRAWL STORE 2.0 ==================== -->
+        <div id="site-brawl" class="site-container active flex-1">
+            <header class="header">
+                <div class="header-container">
+                    <div class="logo">
+                        <i class="fa-solid fa-gamepad glow-icon"></i>
+                        <span>2.0 <span class="highlight">BRAWL STORE</span></span>
+                    </div>
+                    <div class="header-actions">
+                        <div class="balance-badge">
+                            <i class="fa-solid fa-wallet" style="color: #fa8e00;"></i>
+                            <span id="user-uah">0</span> Гривні
+                        </div>
+                        <div class="balance-badge">
+                            <i class="fa-solid fa-gem" style="color: #3afa00;"></i>
+                            <span id="user-gems">0</span> Геми
+                        </div>
+                        <div class="balance-badge">
+                            <i class="fa-solid fa-ticket" style="color: #ff0077;"></i>
+                            <span id="user-passes">0</span> Пропуски
+                        </div>
+                        <button class="cart-btn" id="open-cart">
+                            <i class="fa-solid fa-cart-shopping"></i>
+                            <span class="cart-counter" id="cart-count">0</span>
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <main class="main-container">
+                <section class="promo-banner" id="promo-banner">
+                    <div class="promo-content">
+                        <span class="badge-limited">ПРЕМІУМ АКЦІЯ</span>
+                        <h1>Ваш Перший Кастомізатор Стилю</h1>
+                        <p>Накопичи 100,000 гемів, щоб розблокувати 3 нові ультра-теми оформлення найвищого рівня з кібер-анімаціями та неймовірним світінням!</p>
+                        <button class="btn-primary" onclick="buyExclusiveOffer()">100,000 Геми</button>
+                    </div>
+                    <div class="banner-image">
+                        <i class="fa-solid fa-crown"></i>
+                    </div>
+                </section>
+
+                <section class="promo-banner hidden" id="promo-banner-200k" style="background: linear-gradient(135deg, #28004d, #7a00cc); border-color: #ff00ea;">
+                    <div class="promo-content">
+                        <span class="badge-limited" style="background: #ff00ea; box-shadow: 0 0 15px #ff00ea;">БІЛЬШЕ ЕКСКЛЮЗИВУ</span>
+                        <h1>Новий Неоновий Інтерфейс</h1>
+                        <p>Ексклюзивна пропозиція! Отримайте ще 3 новітні кібер-неонові стилі найвищого рівня та станьте володарем максимального сяйва!</p>
+                        <button class="btn-primary" style="background: linear-gradient(135deg, #ff00ea, #00ffff); color:#000;" onclick="buyUltraNeonOffer()">200,000 Геми</button>
+                    </div>
+                    <div class="banner-image">
+                        <i class="fa-solid fa-bolt" style="color: #00ffff; text-shadow: 0 0 30px #00ffff;"></i>
+                    </div>
+                </section>
+
+                <section class="promo-banner hidden" id="promo-banner-500k" style="background: linear-gradient(135deg, #0a0a0a, #43006b); border-color: #ff0055; box-shadow: 0 0 50px rgba(255, 0, 85, 0.4);">
+                    <div class="promo-content">
+                        <span class="badge-limited" style="background: linear-gradient(90deg, #ff0055, #ffaa00); box-shadow: 0 0 20px #ff0055;">АКЦІЯ ДЛЯ ЗАДРОТІВ</span>
+                        <h1>Акція На Переливаючі Стилі</h1>
+                        <p>Легендарна прокачка! І ще 3 нових супер-преміум стилі, де кожен піксель, кнопка та фон неймовірно переливаються райдужними неоновими хвилями!</p>
+                        <button class="btn-primary" style="background: linear-gradient(90deg, #ff0055, #00ffff, #ff00ff); color:#fff; text-shadow: 0 0 10px #000;" onclick="buySuperPremiumOffer()">500,000 Геми</button>
+                    </div>
+                    <div class="banner-image">
+                        <i class="fa-solid fa-wand-magic-sparkles" style="color: #ff00aa; text-shadow: 0 0 30px #ff00aa;"></i>
+                    </div>
+                </section>
+
+                <section class="promo-banner hidden" id="promo-banner-1m" style="background: linear-gradient(135deg, #000, #ff007f); border-color: #00ffff; box-shadow: 0 0 60px rgba(0, 255, 255, 0.6);">
+                    <div class="promo-content">
+                        <span class="badge-limited" style="background: linear-gradient(90deg, #00ffff, #ff00ea, #ffd700); color: #000; box-shadow: 0 0 25px #00ffff;">ТИ ПРОФІ-ПОКУПЕЦЬ</span>
+                        <h1>Ультра Мега Неоновий Апокаліпсис Для OG-Гравців</h1>
+                        <p>Вершина еволюції стилю! Переливається все: фон, градієнти, кнопки та навіть сам ТЕКСТ! Знижує ціни на всі товари на 5% і дає +10% до всіх нагород!</p>
+                        <button class="btn-primary" style="background: linear-gradient(90deg, #00ffff, #ff00ea, #00ff66); color:#000; font-weight:900;" onclick="buyUltrametaOffer()">1,000,000 Геми</button>
+                    </div>
+                    <div class="banner-image">
+                        <i class="fa-solid fa-fire-flame-curved" style="color: #00ffff; text-shadow: 0 0 40px #00ffff;"></i>
+                    </div>
+                </section>
+
+                <section class="customizer-panel hidden" id="customizer-panel">
+                    <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Ультра-панель керування стилем</h3>
+                    <p class="customizer-desc">Обирай оформлення преміум-класу, створене для справжніх володарів кібервсесвіту:</p>
+                    <div class="customizer-options">
+                        <button class="theme-btn active" onclick="setTheme('cyber')"><i class="fa-solid fa-bolt"></i> Cyber Neon</button>
+                        <button class="theme-btn" onclick="setTheme('gold')"><i class="fa-solid fa-crown"></i> Golden Luxury</button>
+                        <button class="theme-btn" onclick="setTheme('matrix')"><i class="fa-solid fa-code"></i> Matrix Green</button>
+                        <button class="theme-btn hidden ultraneon-btn" id="btn-theme-un1" onclick="setTheme('ultraneon1')"><i class="fa-solid fa-fire"></i> Cyberpunk Neon</button>
+                        <button class="theme-btn hidden ultraneon-btn" id="btn-theme-un2" onclick="setTheme('ultraneon2')"><i class="fa-solid fa-star"></i> Hyper Purple</button>
+                        <button class="theme-btn hidden ultraneon-btn" id="btn-theme-un3" onclick="setTheme('ultraneon3')"><i class="fa-solid fa-atom"></i> Electric Cyan</button>
+                        <button class="theme-btn hidden super-btn" id="btn-theme-sp1" onclick="setTheme('ultragold')"><i class="fa-solid fa-gem"></i> Liquid Gold</button>
+                        <button class="theme-btn hidden super-btn" id="btn-theme-sp2" onclick="setTheme('ultrarainbow')"><i class="fa-solid fa-rainbow"></i> Cyber Rainbow</button>
+                        <button class="theme-btn hidden super-btn" id="btn-theme-sp3" onclick="setTheme('ultramatrix')"><i class="fa-solid fa-network-wired"></i> Neon Matrix Flow</button>
+                        <button class="theme-btn hidden mega-btn" id="btn-theme-mg1" onclick="setTheme('ultrameon1')"><i class="fa-solid fa-dragon"></i> Apex Neon Chaos</button>
+                        <button class="theme-btn hidden mega-btn" id="btn-theme-mg2" onclick="setTheme('ultrameon2')"><i class="fa-solid fa-meteor"></i> Supernova Pulse</button>
+                        <button class="theme-btn hidden mega-btn" id="btn-theme-mg3" onclick="setTheme('ultrameon3')"><i class="fa-solid fa-infinity"></i> Quantum Cyber Flow</button>
+                    </div>
+                </section>
+
+                <section class="customizer-panel hidden" id="settings-panel" style="border-color: #00f0ff; box-shadow: 0 0 30px rgba(0, 240, 255, 0.2);">
+                    <h3><i class="fa-solid fa-gears"></i> <span data-i18n="settingsTitle">Панель Налаштувань</span></h3>
+                    <p class="customizer-desc" data-i18n="settingsDesc">Керуйте мовою, звуками, музикою та темою оформлення:</p>
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <span data-i18n="langLabel"><i class="fa-solid fa-globe"></i> Мова / Language</span>
+                            <div class="setting-controls">
+                                <button class="setting-btn active" id="lang-ua" onclick="setLanguage('ua')">UA</button>
+                                <button class="setting-btn" id="lang-en" onclick="setLanguage('en')">EN</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span data-i18n="musicLabel"><i class="fa-solid fa-music"></i> Музика / Music</span>
+                            <div class="setting-controls">
+                                <button class="setting-btn active" id="music-on" onclick="toggleMusic(true)" data-i18n="on">Увімк</button>
+                                <button class="setting-btn" id="music-off" onclick="toggleMusic(false)" data-i18n="off">Вимк</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span data-i18n="sfxLabel"><i class="fa-solid fa-volume-high"></i> Звукові ефекти / SFX</span>
+                            <div class="setting-controls">
+                                <button class="setting-btn active" id="sfx-on" onclick="toggleSFX(true)" data-i18n="on">Увімк</button>
+                                <button class="setting-btn" id="sfx-off" onclick="toggleSFX(false)" data-i18n="off">Вимк</button>
+                            </div>
+                        </div>
+                        <div class="setting-item">
+                            <span data-i18n="themeModeLabel"><i class="fa-solid fa-circle-half-stroke"></i> Режим теми</span>
+                            <div class="setting-controls">
+                                <button class="setting-btn active" id="mode-dark" onclick="setLightDark('dark')" data-i18n="dark">Темна</button>
+                                <button class="setting-btn" id="mode-light" onclick="setLightDark('light')" data-i18n="light">Світла</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="tabs-nav">
+                    <button class="tab-btn active" data-tab="gems" data-i18n="tabGems"><i class="fa-solid fa-gem"></i> Геми</button>
+                    <button class="tab-btn" data-tab="offers" data-i18n="tabOffers"><i class="fa-solid fa-fire"></i> Акції</button>
+                    <button class="tab-btn" data-tab="merch" data-i18n="tabMerch"><i class="fa-solid fa-shirt"></i> Мерч</button>
+                    <button class="tab-btn" data-tab="wheel" data-i18n="tabWheel"><i class="fa-solid fa-dharmachakra"></i> Колесо Фортуни</button>
+                </div>
+
+                <div class="tab-pane active" id="tab-gems"><div class="products-grid" id="gems-grid"></div></div>
+                <div class="tab-pane" id="tab-offers"><div class="products-grid" id="offers-grid"></div></div>
+                <div class="tab-pane" id="tab-merch"><div class="products-grid" id="merch-grid"></div></div>
+                <div class="tab-pane" id="tab-wheel">
+                    <div class="wheel-container-wrapper">
+                        <h2 data-i18n="wheelTitle">Колесо Фортуни</h2>
+                        <p class="wheel-desc" data-i18n="wheelDesc">Крути безкоштовно та вибивай гривні або рідкісний Пропуск (🎫)!</p>
+                        <div class="wheel-box">
+                            <div class="wheel-pointer"><i class="fa-solid fa-location-arrow"></i></div>
+                            <div class="wheel" id="fortune-wheel"></div>
+                        </div>
+                        <button class="btn-spin" onclick="spinWheel()" data-i18n="spinBtn">Крутити!</button>
+                        <div class="wheel-result" id="wheel-result"></div>
+                    </div>
+                </div>
+            </main>
+
+            <div class="modal-overlay" id="cart-modal">
+                <div class="modal">
+                    <div class="modal-header">
+                        <h3 data-i18n="cartTitle">Кошик замовлень</h3>
+                        <button class="close-modal" id="close-cart"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                    <div class="modal-body" id="cart-items">
+                        <p class="empty-cart-text" data-i18n="emptyCart">Кошик порожній 🛒</p>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="total-price">
+                            <span data-i18n="totalLabel">Разом до сплати:</span>
+                            <span id="cart-total">0 ₴ / 0 💎</span>
+                        </div>
+                        <div class="checkout-buttons">
+                            <button class="btn-checkout" onclick="checkout('standard')" data-i18n="checkoutStd">Оплатити стандартно</button>
+                            <button class="btn-checkout pass-btn" onclick="checkout('pass')" data-i18n="checkoutPass">Купити за Пропуски 🎫</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-overlay" id="box-opening-modal">
+                <div class="modal box-modal">
+                    <h3 data-i18n="boxModalTitle">🎁 Відкриття Мега Ящика х3</h3>
+                    <div class="boxes-container" id="boxes-container"></div>
+                    <div class="box-rewards-summary" id="box-rewards-summary"></div>
+                    <button class="btn-primary hidden" id="close-box-modal" onclick="closeBoxModal()" data-i18n="claimRewards">Забрати нагороди</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== САЙТ 2: YOUTUBE STUDIO TYCOON ==================== -->
+        <div id="site-yt" class="site-container flex-1">
+            <div id="nameModal" class="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
+                <div class="bg-ytcard border border-ytborder p-6 rounded-2xl max-w-md w-full shadow-2xl">
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center justify-center w-16 h-16 bg-youtube/20 text-youtube rounded-full text-2xl mb-3">
+                            <i class="fa-brands fa-youtube"></i>
+                        </div>
+                        <h2 class="text-2xl font-bold">Створіть свій YouTube канал</h2>
+                        <p class="text-gray-400 text-sm mt-1">Назву можна встановити лише 1 раз назавжди!</p>
+                    </div>
+                    <div class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-300 mb-1">Назва каналу</label>
+                            <input type="text" id="channelNameInput" placeholder="Наприклад: GamerProUA" class="w-full bg-ytbg border border-ytborder rounded-lg px-4 py-2.5 text-white focus:outline-none focus:border-youtube transition">
+                        </div>
+                        <button id="saveChannelNameBtn" class="w-full bg-youtube hover:bg-red-700 font-bold py-3 rounded-lg transition shadow-lg shadow-youtube/30 cursor-pointer">
+                            Створити канал
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="notificationContainer" class="fixed top-20 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+            <header class="h-16 border-b border-ytborder bg-ytcard px-4 flex items-center justify-between sticky top-0 z-40">
+                <div class="flex items-center gap-4">
+                    <div class="flex items-center gap-2 text-youtube text-2xl font-bold tracking-tighter">
+                        <i class="fa-brands fa-youtube"></i>
+                        <span class="text-white text-lg">YouTube Studio</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <button id="toggleNotificationsBtn" class="bg-ytbg hover:bg-ytborder border border-ytborder w-10 h-10 rounded-full flex items-center justify-center text-gray-300 hover:text-white transition cursor-pointer relative" title="Історія сповіщень">
+                            <i class="fa-solid fa-bell"></i>
+                            <span id="notifBadge" class="absolute -top-1 -right-1 bg-youtube text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+                        </button>
+
+                        <div id="notificationsDropdown" class="absolute right-0 mt-2 w-80 sm:w-96 bg-ytcard border border-ytborder rounded-2xl shadow-2xl hidden z-50 overflow-hidden flex flex-col max-h-[400px]">
+                            <div class="p-4 border-b border-ytborder flex items-center justify-between bg-ytbg/50">
+                                <h3 class="font-bold text-sm flex items-center gap-2"><i class="fa-solid fa-bell text-youtube"></i> Сповіщення</h3>
+                                <button id="clearNotificationsBtn" class="text-xs text-gray-400 hover:text-youtube transition cursor-pointer">Очистити</button>
+                            </div>
+                            <div id="notificationsList" class="overflow-y-auto p-2 space-y-2 flex-1">
+                                <div class="text-center text-gray-500 text-xs py-8">Поки немає жодних сповіщень</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4 bg-ytbg px-4 py-2 rounded-full border border-ytborder">
+                        <div class="flex items-center gap-1.5 text-emerald-400 font-bold text-sm" title="Долари">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                            <span id="dollarsDisplay">0</span>
+                        </div>
+                        <div class="h-4 w-[1px] bg-ytborder"></div>
+                        <div class="flex items-center gap-1.5 text-youtube font-bold text-sm" title="Ютуберки">
+                            <i class="fa-solid fa-play"></i>
+                            <span id="youtubertsDisplay">0</span>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 max-w-7xl w-full mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2 space-y-6">
+                    <div id="channelCard" class="bg-ytcard border border-ytborder rounded-2xl p-6 relative overflow-hidden transition-all duration-300">
+                        <div class="absolute top-0 right-0 p-6 opacity-10 text-8xl pointer-events-none">
+                            <i class="fa-brands fa-youtube"></i>
+                        </div>
+                        <div class="flex items-center gap-4 mb-6">
+                            <div id="channelAvatar" class="w-16 h-16 rounded-full bg-youtube flex items-center justify-center text-3xl font-bold shadow-lg">
+                                Y
+                            </div>
+                            <div>
+                                <h1 id="displayChannelName" class="text-2xl font-bold">Мій Канал</h1>
+                                <p class="text-gray-400 text-sm">Студія блогера</p>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+                            <div class="bg-ytbg/60 p-4 rounded-xl border border-ytborder/55">
+                                <div class="text-gray-400 text-xs mb-1">Підписники</div>
+                                <div id="subscribersDisplay" class="text-2xl font-bold">0</div>
+                            </div>
+                            <div class="bg-ytbg/60 p-4 rounded-xl border border-ytborder/55">
+                                <div class="text-gray-400 text-xs mb-1">Таймер нарахування</div>
+                                <div id="timerDisplay" class="text-2xl font-bold text-yellow-400">1с</div>
+                            </div>
+                            <div class="bg-ytbg/60 p-4 rounded-xl border border-ytborder/55 col-span-2 sm:col-span-1">
+                                <div class="text-gray-400 text-xs mb-1">Бонус за випередження</div>
+                                <div id="advanceBonusDisplay" class="text-2xl font-bold text-youtube">+1</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="flex justify-between text-xs text-gray-400 mb-1">
+                                <span>Наступний підписник через:</span>
+                                <span id="countdownDisplay">1с</span>
+                            </div>
+                            <div class="w-full bg-ytbg rounded-full h-2.5 overflow-hidden border border-ytborder">
+                                <div id="progressBar" class="bg-youtube h-2.5 rounded-full transition-all duration-1000 w-0"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-ytcard border border-ytborder rounded-2xl p-6">
+                        <h2 class="text-xl font-bold mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-trophy text-amber-400"></i> Кнопки за досягнення (Нагороди YouTube)
+                        </h2>
+                        <p class="text-gray-400 text-xs mb-4">Отримуйте престижні кнопки каналу за досягнення певної кількості підписників!</p>
+                        <div id="playButtonsGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3"></div>
+                    </div>
+
+                    <div class="bg-ytcard border border-ytborder rounded-2xl p-6">
+                        <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                            <i class="fa-solid fa-dharmachakra text-yellow-500"></i> Колесо Фортуни
+                        </h2>
+                        <div class="flex flex-col sm:flex-row items-center gap-6 justify-between">
+                            <div class="relative w-48 h-48 sm:w-56 sm:h-56 flex items-center justify-center">
+                                <div id="wheel" class="w-full h-full rounded-full border-4 border-ytborder relative overflow-hidden transition-transform duration-[3000ms] cubic-bezier(0.15, 0.9, 0.2, 1)"></div>
+                                <div class="absolute -top-3 w-4 h-6 bg-youtube clip-polygon z-10"></div>
+                            </div>
+                            <div class="flex-1 text-center sm:text-left space-y-4">
+                                <p class="text-gray-300 text-sm">Випробуй удачу! Отримуй додаткові Долари та Ютуберки щоразу, коли крутиш колесо фортуни.</p>
+                                <div id="wheelRewardText" class="text-lg font-bold text-emerald-400 h-8 flex items-center justify-center sm:justify-start"></div>
+                                <button id="spinWheelBtn" class="bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-600 hover:to-amber-700 text-black font-bold px-8 py-3 rounded-xl transition shadow-lg shadow-yellow-500/20 w-full sm:w-auto cursor-pointer">
+                                    Крутити колесо!
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-ytcard border border-ytborder rounded-2xl p-6 flex flex-col">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-store text-youtube"></i> Магазин Студії
+                    </h2>
+
+                    <div class="flex border-b border-ytborder mb-4">
+                        <button onclick="switchCategory('youtuberts')" id="tabCatYoutuberts" class="flex-1 pb-2 font-bold text-sm border-b-2 border-youtube text-youtube transition cursor-pointer">Ютуберки</button>
+                        <button onclick="switchCategory('dollars')" id="tabCatDollars" class="flex-1 pb-2 font-bold text-sm border-b-2 border-transparent text-gray-400 hover:text-white transition cursor-pointer">Долари</button>
+                    </div>
+
+                    <div id="youtubertsSubtabs" class="flex border-b border-ytborder/60 mb-3 pb-1">
+                        <button onclick="switchYoutubertsTab('timer')" id="tabSubTimer" class="flex-1 text-xs font-semibold pb-1.5 border-b-2 border-youtube text-youtube transition cursor-pointer">Скорочення таймеру</button>
+                        <button onclick="switchYoutubertsTab('subs')" id="tabSubSubs" class="flex-1 text-xs font-semibold pb-1.5 border-b-2 border-transparent text-gray-400 hover:text-white transition cursor-pointer">Кількість підписників</button>
+                    </div>
+
+                    <div id="shopYoutubertsTimer" class="space-y-3 overflow-y-auto max-h-[500px] pr-1"></div>
+                    <div id="shopYoutubertsSubs" class="space-y-3 overflow-y-auto max-h-[500px] pr-1 hidden"></div>
+                    <div id="shopDollars" class="space-y-3 overflow-y-auto max-h-[500px] pr-1 hidden"></div>
+                </div>
+            </main>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+</html>
