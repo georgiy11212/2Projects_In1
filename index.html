@@ -5,15 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CyberHub & Studio Tycoon Portal</title>
 
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-BFJKG4WSK5"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-BFJKG4WSK5"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
 
-  gtag('config', 'G-BFJKG4WSK5');
-</script>
+      gtag('config', 'G-BFJKG4WSK5');
+    </script>
 
     <!-- FontAwesome та Google Fonts -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -97,7 +97,7 @@
             <h3 id="tutTitle" class="text-2xl font-bold text-cyan-400 mb-4 flex items-center gap-3"></h3>
             <div id="tutContent" class="text-sm text-gray-300 space-y-4 overflow-y-auto pr-3 leading-relaxed"></div>
             <div class="mt-6 text-right pt-4 border-t border-gray-800">
-                <button onclick="closeTutorial()" class="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs py-2.5 px-6 rounded-xl cursor-pointer transition">Зрозуміло, крутий гайд!</button>
+                <button onclick="closeTutorial()" class="bg-cyan-500 hover:bg-cyan-400 text-black font-bold text-xs py-2.5 px-6 rounded-xl cursor-pointer transition">Зрозуміло!</button>
             </div>
         </div>
     </div>
@@ -463,29 +463,28 @@
 
     </div>
 
-    <!-- СКРИПТ ІЗ ПОВНИМИ ГАЙДАМИ ТА ЛОГІКОЮ -->
+    <!-- СКРИПТ ІЗ ГАЙДАМИ -->
     <script>
-        // ДЕТАЛЬНІ ГАЙДИ АВТОРА ДЛЯ МОДАЛЬНИХ ВІКОН (?)
         function openTutorial(site) {
             const modal = document.getElementById('tutorialModal');
             const title = document.getElementById('tutTitle');
             const content = document.getElementById('tutContent');
 
             if (site === 'brawl') {
-                title.innerHTML = `<i class="fa-solid fa-gamepad text-cyan-400"></i> Повний гайд створення: Brawl Store 2.0`;
+                title.innerHTML = `<i class="fa-solid fa-gamepad text-cyan-400"></i> Повний гайд: Brawl Store 2.0`;
                 content.innerHTML = `
-                    <p><b>1. Архітектура та макет (HTML5):</b> Сайт побудований на блочній структурі. Шапка містить інтерактивні лічильники (гривні, геми, пропуски) та кнопку кошика з анімацією. Нижче розташовані промо-банери акцій та динамічні сітки товарів.</p>
-                    <p><b>2. Дизайн, Неон та Градієнти (CSS3):</b> Реалізовано через кастомні змінні <code>--accent</code> та складні ключові анімації (<code>@keyframes bgShift</code> і <code>textFlow</code>). Це дозволяє фону і текстам плавно переливатися райдужними або неоновими хвилями в преміум-темах.</p>
-                    <p><b>3. Синтезований звук без аудіофайлів (Web Audio API):</b> Замість завантаження важких MP3-треків, проєкт використовує браузерний аудіоконтекст. Функція <code>playSound()</code> створює осцилятори з різною частотою хвиль (синус, пила), а фонова музика процедурно генерується в реальному часі.</p>
-                    <p><b>4. Колесо Фортуни та Бокси:</b> Колесо обертається за допомогою анімації повороту з плавною кривою зупинення. Симулятор ящиків має математично налаштовані шанси (drop rates) випадіння рідкісних пропусків та гемів.</p>
+                    <p><b>1. Архітектура та макет (HTML5):</b> Побудовано на модульних секціях. Верхня панель містить фіксовані плашки балансу та інтерактивний лічильник кошика.</p>
+                    <p><b>2. Дизайн та Неон (CSS3):</b> Кастомні змінні дозволяють змінювати теми. Ключові анімації створюють ефект переливання градієнтів та світіння тексту.</p>
+                    <p><b>3. Синтезований звук (Web Audio API):</b> Генерує синусоїдальні та пилкоподібні хвилі для кліків та фонової музики без завантаження важких MP3 файлів.</p>
+                    <p><b>4. Колесо Фортуни та Бокси:</b> Обертання через анімацію з кривою плавного зупинення та рандомізатор випадіння цінних винагород.</p>
                 `;
             } else {
-                title.innerHTML = `<i class="fa-brands fa-youtube text-red-500"></i> Повний гайд створення: YouTube Studio Tycoon`;
+                title.innerHTML = `<i class="fa-brands fa-youtube text-red-500"></i> Повний гайд: YouTube Studio Tycoon`;
                 content.innerHTML = `
-                    <p><b>1. Швидкий інтерфейс (Tailwind CSS):</b> Використовує адаптивну сітку та вбудовані утиліти Tailwind для створення темного інтерфейсу студії, що нагадує панель управління YouTube.</p>
-                    <p><b>2. Ігровий цикл (Game Loop):</b> В основі лежить інтервал <code>setInterval(gameLoop, 1000)</code>, який щосекунди відраховує час таймера, нараховує підписників, долари каналу та ютуберки.</p>
-                    <p><b>3. Система нагород і досягнень:</b> Скрипт постійно перевіряє кількість підписників і за досягнення цільових порогів (наприклад, 100k, 1M, 10M) автоматично розблоковує престижні кнопки YouTube (від Срібної до Легендарної).</p>
-                    <p><b>4. Магазин та Супер-Акції:</b> Гравці можуть витрачати ютуберки на прискорення таймера або купівлю експоненціального бусту за $50,000,000, який множить увесь прибуток на 10.</p>
+                    <p><b>1. Інтерфейс та Стилі (Tailwind CSS):</b> Сучасна темна студія з адаптивною сіткою, що імітує панель управління відеохостингом.</p>
+                    <p><b>2. Ігровий цикл (Game Loop):</b> Інтервал <code>setInterval</code> щосекунди оновлює таймер, нараховує підписників, долари та валюту.</p>
+                    <p><b>3. Магазин і Прокачка:</b> Витрачайте ютуберки на скорочення таймера і бусти, що множать прибуток.</p>
+                    <p><b>4. Система досягнень:</b> Автоматична перевірка порогової кількості підписників розблоковує престижні кнопки YouTube із сповіщеннями.</p>
                 `;
             }
             modal.classList.add('open');
